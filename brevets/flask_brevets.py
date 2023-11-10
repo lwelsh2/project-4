@@ -52,13 +52,14 @@ def _calc_times():
     app.logger.debug("Got a JSON request")
     km = request.args.get('km', 999, type=float)
     app.logger.debug("km={}".format(km))
-    app.logger.debug("request.args: {}".format(request.args))
-    # FIXME!
-    # Right now, only the current time is passed as the start time
-    # and control distance is fixed to 200
-    # You should get these from the webpage!
-    open_time = acp_times.open_time(km, 200, arrow.now().isoformat).format('YYYY-MM-DDTHH:mm')
-    close_time = acp_times.close_time(km, 200, arrow.now().isoformat).format('YYYY-MM-DDTHH:mm')
+    app.logger.debug("request.args: {}".format(request.args))    
+    
+    time = request.args.get('time', type=str)
+    dist = request.args.get("dist", 0, type=float)
+    arrow_time = arrow.get(time, 'YYYY-MM-DDTHH:mm')
+
+    open_time = acp_times.open_time(km, dist, arrow_time).format('YYYY-MM-DDTHH:mm')
+    close_time = acp_times.close_time(km, dist, arrow_time).format('YYYY-MM-DDTHH:mm')
     result = {"open": open_time, "close": close_time}
     return flask.jsonify(result=result)
 
@@ -72,3 +73,5 @@ if app.debug:
 if __name__ == "__main__":
     print("Opening for global access on port {}".format(CONFIG.PORT))
     app.run(port=CONFIG.PORT, host="0.0.0.0")
+
+
